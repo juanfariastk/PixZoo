@@ -11,6 +11,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { RouterModule } from '@angular/router';
 
@@ -29,6 +31,8 @@ import { SideNavbarRoutingModule } from './side-navbar-routing.module';
     CommonModule,
     RouterModule,
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
     SideNavbarRoutingModule,
     MatSidenavModule,
     MatButtonModule,
@@ -38,6 +42,7 @@ import { SideNavbarRoutingModule } from './side-navbar-routing.module';
     MatMenuModule,
     MatToolbarModule,
     MatListModule, 
+    MatSnackBarModule,
     MatCardModule
   ]
 })

@@ -5,6 +5,8 @@ import { DataBet } from 'src/app/shared/types/dataBet.type';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { UserService } from 'src/app/users/services/user.service';
 import { BetControlService } from '../bet-services/bet-control.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-main-content',
@@ -14,7 +16,9 @@ import { BetControlService } from '../bet-services/bet-control.service';
 export class MainContentComponent {
   animals: Animal[] = animalsArray; 
   selectedAnimals: Animal[] = [];
-  constructor(private betControlService: BetControlService, private userService:UserService){}
+  betAmount: number=0;
+
+  constructor(private betControlService: BetControlService, private userService:UserService, private snackBar: MatSnackBar, ){}
 
   toggleSelection(animal: Animal) {
     if (this.isSelected(animal)) {
@@ -28,7 +32,19 @@ export class MainContentComponent {
     return this.selectedAnimals.includes(animal);
   }
 
+  isAbleToBet(): boolean {
+    return this.selectedAnimals.length > 0 && this.betAmount > 0;
+  }
+
   apostar() {
+
+    if (!this.isAbleToBet()) {
+      this.snackBar.open('Selecione pelo menos um animal e insira um valor válido.', 'Fechar', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    }
 
     this.userService.getCurrentUserAllData().subscribe(async (currentUser: UserAllData | null) => {
       if (!currentUser) {
@@ -48,7 +64,7 @@ export class MainContentComponent {
         userCPF: currentUser.CPF,
         userEmail: currentUser.email,
         animalsSelected: animalsSelected,
-        amountBet: 150.0, 
+        amountBet: this.betAmount+0.98, 
       };
 
       try {
@@ -56,12 +72,18 @@ export class MainContentComponent {
         console.log('Saldo atualizado com sucesso.');
       } catch (error) {
         console.error('Erro ao atualizar o saldo:', error);
+        this.snackBar.open('O valor da aposta é maior do que o saldo disponível.', 'Fechar', {
+          duration: 3000, 
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
         return;
       }
 
       try {
         const response = await this.betControlService.createBet(dataBet).toPromise();
-        console.log('Aposta criada com sucesso:', response);
+        //console.log('Aposta criada com sucesso:', response);
+        const responseBets = await this.betControlService.listBets()?.toPromise();
         this.selectedAnimals = [];
       } catch (error) {
         console.error('Erro ao criar a aposta:', error);

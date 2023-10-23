@@ -19,4 +19,13 @@ export class BetControlService {
   createBet(userBet:DataBet){
     return this.http.post(`${this.baseUrl}/userBet`, userBet);
   }
+
+  listBets(){
+    const user = this.userService.getCurrentUser();
+    const userId = user?.userId; 
+    if (userId !== undefined) {
+      return this.http.get(`${this.baseUrl}/userBet/${userId}`);
+    }
+    return;
+  }
 }

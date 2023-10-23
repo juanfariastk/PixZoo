@@ -1,1 +1,41 @@
-<p>main-content-user works!</p>
+<div class="user-data">
+  <h2>Seus Dados</h2>
+  <form [formGroup]="userDataForm">
+    <div class="form-group">
+      <mat-form-field>
+        <input matInput placeholder="Nome" formControlName="name" required>
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <mat-form-field>
+        <input matInput placeholder="Email" formControlName="email" required>
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <mat-form-field>
+        <input matInput placeholder="Senha" formControlName="password" required>
+      </mat-form-field>
+    </div>
+    <div class="form-group">
+      <mat-form-field>
+        <input matInput type="date" placeholder="Aniversário" formControlName="birthday" required>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div class="user-bets">
+  <h2>Suas Apostas</h2>
+  <mat-list>
+    <mat-list-item *ngFor="let bet of userBets">
+      <div class="bet-details">
+        <div class="animal-details" *ngFor="let animalSelected of bet.animalsSelected">
+          (Animal: {{ animalSelected.key}})
+        </div>
+        <div class="amount-details">
+          Valor da Aposta: R$ {{ bet.amountBet }}
+        </div>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
