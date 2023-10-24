@@ -3,22 +3,32 @@
   <form [formGroup]="userDataForm">
     <div class="form-group">
       <mat-form-field>
+        <mat-label>Nome</mat-label>
         <input matInput placeholder="Nome" formControlName="name" required>
-      </mat-form-field>
+      </mat-form-field> 
     </div>
-    <div class="form-group">
+    <div class="form-group ">
       <mat-form-field>
+        <mat-label>Email</mat-label>
         <input matInput placeholder="Email" formControlName="email" required>
       </mat-form-field>
     </div>
-    <div class="form-group">
+    <div class="form-group readonly">
       <mat-form-field>
-        <input matInput placeholder="Senha" formControlName="password" required>
+        <mat-label>CPF</mat-label>
+        <input matInput placeholder="CPF" formControlName="CPF"  readonly>
       </mat-form-field>
     </div>
-    <div class="form-group">
+    <div class="form-group readonly">
       <mat-form-field>
-        <input matInput type="date" placeholder="Aniversário" formControlName="birthday" required>
+        <mat-label>Saldo</mat-label>
+        <input matInput placeholder="Saldo atual" formControlName="amountDeposited"  readonly>
+      </mat-form-field>
+    </div>
+    <div class="form-group readonly">
+      <mat-form-field>
+        <mat-label>Data de Nascimento</mat-label>
+        <input matInput placeholder="Aniversário" formControlName="birthday" readonly>
       </mat-form-field>
     </div>
   </form>
@@ -26,16 +36,21 @@
 
 <div class="user-bets">
   <h2>Suas Apostas</h2>
-  <mat-list>
-    <mat-list-item *ngFor="let bet of userBets">
-      <div class="bet-details">
-        <div class="animal-details" *ngFor="let animalSelected of bet.animalsSelected">
-          (Animal: {{ animalSelected.key}})
-        </div>
-        <div class="amount-details">
-          Valor da Aposta: R$ {{ bet.amountBet }}
+  <mat-card *ngFor="let bet of userBets" class="bet-card">
+    <div class="bet-details">
+      <div class="animal-details">
+        <div class="animal-image" *ngFor="let animalSelected of bet.animalsSelected">
+          <img [src]="getAnimalImageUrl(animalSelected.key)" alt="Animal Image" />
         </div>
       </div>
-    </mat-list-item>
-  </mat-list>
+      <div class="amount-details">
+        Valor da Aposta: R$ {{ bet.amountBet }}
+      </div>
+      <div class="amount-details">
+        Data: {{ bet.date }}
+      </div>
+    </div>
+  </mat-card>
 </div>
+
+
