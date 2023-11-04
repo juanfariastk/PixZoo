@@ -9,5 +9,12 @@ export type AnimalDraw = {
   value: string[];
 };
 
+export type GetAnimalDrawResponse = {
+  actualDraw: {
+    [key: string]: string[];
+  }[];
+  CreatedAt: string[];
+};
+
 export type PostAnimalDrawRequest = AnimalDraw[];
 export type PostAnimalDrawResponse = AnimalDraw[];
