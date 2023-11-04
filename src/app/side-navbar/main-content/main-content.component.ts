@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { Animal } from 'src/app/shared/types/animal.type';
 import { DataBet } from 'src/app/shared/types/dataBet.type';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { UserService } from 'src/app/users/services/user.service';
 import { BetControlService } from '../bet-services/bet-control.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({

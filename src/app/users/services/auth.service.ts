@@ -25,11 +25,11 @@ export class AuthService {
         return throwError('Login falhou: ' + error.message);
       }),
       map((response: any) => {
-        if (response.userType === 'customer' || response.userType === 'admin') {
+        if (response.userType === 'customer' || response.userType === 'administrator') {
           this.userService.setCurrentUser(response); 
           if (response.userType === 'customer') {
             this.router.navigate(['/dashboard']);
-          } else if (response.userType === 'admin') {
+          } else if (response.userType === 'administrator') {
             this.router.navigate(['/admin']);
           }
         }
