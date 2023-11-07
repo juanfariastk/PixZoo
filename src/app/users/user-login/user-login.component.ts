@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { catchError, of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserLogin } from 'src/app/shared/types/login.type';
 import { AuthService } from '../services/auth.service';
 
@@ -15,7 +16,7 @@ export class UserLoginComponent {
   email: string = ''; 
   password: string = ''; 
   
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private snackbar:MatSnackBar) {}
 
   login() {
     const user: UserLogin = { email: this.email, password: this.password };
@@ -23,6 +24,7 @@ export class UserLoginComponent {
       .pipe(
         catchError(error => {
           console.error('Erro no login:', error);
+          this.Showerrorsnackbar()
           return of(null); 
         })
       )
@@ -33,4 +35,7 @@ export class UserLoginComponent {
       });
   }
   
+  Showerrorsnackbar() {
+    this.snackbar.open("Erro ao realizar login!","Fechar",{duration:3000})
+  }
 }

@@ -5,6 +5,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { formatDate } from '@angular/common';
+import { AdminService } from '../admin-services/admin-service.service';
 
 @Component({
   selector: 'app-main-content-user',
@@ -15,11 +16,12 @@ export class MainContentUserComponent implements OnInit {
   userDataForm: FormGroup;
   userBets: any[] = [];
   animalsArray = animalsArray;
-
+  actualdraw: any[]= []
+  verifydraw: boolean= false
   constructor(
     private betControlService: BetControlService,
     private userService: UserService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder, private adminservice: AdminService
   ) {
     this.userDataForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -35,8 +37,33 @@ export class MainContentUserComponent implements OnInit {
     const animal = this.animalsArray.find(animal => animal.name === key);
     return animal ? animal.url : '';
   }
+  getactualdraw(){
+    this.adminservice.getActualAnimalDraw().subscribe((data)=>{
+      if(data.actualDraw&&data.actualDraw.length>0
+      ){
+        this.verifydraw= true
+        this.actualdraw=data.actualDraw
+        console.log(this.actualdraw)
+      }
+    })
+  }
 
+  SearchUrl(draw:any):string{
+    const animalName =  this.getname(draw)
+
+    const url = this.getAnimalImageUrl(animalName)
+    return url
+  }
+  iscreated(draw: any):boolean{
+    return draw.hasOwnProperty("CreatedAt")
+
+  }
+  getname(draw:any):string{
+    return Object.keys(draw)[0]
+  }
   ngOnInit() {
+    this.getactualdraw()
+    console.log(this.actualdraw)
     this.userService.getCurrentUserAllData().subscribe((user: UserAllData | null) => {
       if (user) {
         const dateParts = user.birthday.split('/');

@@ -53,4 +53,24 @@
   </mat-card>
 </div>
 
+<div class=" actual-draw-container" *ngIf="verifydraw">
+  <h2>
+    Resultado Atual
+  </h2>
+  <div class="animal-card-container">
+    <ng-container *ngFor="let draw of actualdraw">
+    <ng-container *ngIf="!iscreated(draw)">
+      <mat-card class = "animal-card">
+        <img [src]="SearchUrl(draw)" 
+      />
+      <h3>
+        {{getname(draw)}}
+      </h3>
+
+      </mat-card>
+    </ng-container>
+    </ng-container>
+  </div>
+</div>
+
 
