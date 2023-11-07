@@ -30,7 +30,7 @@ export class AuthService {
           if (response.userType === 'customer') {
             this.router.navigate(['/dashboard']);
           } else if (response.userType === 'administrator') {
-            this.router.navigate(['/admin']);
+            this.router.navigate(['/admin/all']);
           }
         }
         return response;
