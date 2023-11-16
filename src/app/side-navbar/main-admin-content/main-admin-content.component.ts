@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
+import { UserService } from 'src/app/users/services/user.service';
 import { AdminService } from '../admin-services/admin-service.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 
@@ -12,7 +13,7 @@ import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 export class MainAdminContentComponent {
   actualDrawData: any;
 
-  constructor(private dialog: MatDialog, private adminService: AdminService) { }
+  constructor(private dialog: MatDialog, private adminService: AdminService, private userService:UserService) { }
 
   openDialog(): void {
     this.adminService.getActualAnimalDraw().subscribe((data) => {
@@ -33,5 +34,12 @@ export class MainAdminContentComponent {
         console.error('ActualDrawData is missing or not an array.');
       }
     });
+    
+  }
+
+  logoff():void{
+    setTimeout(() => {
+      this.userService.logoffUser();
+    }, 2300);
   }
 }

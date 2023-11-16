@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UserService } from 'src/app/users/services/user.service';
 
 @Component({
   selector: 'app-main-navbar',
@@ -6,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./main-navbar.component.scss']
 })
 export class MainNavbarComponent{
+  constructor(private userService: UserService) {}
 
+  logoff(): void {
+    setTimeout(() => {
+      this.userService.logoffUser();
+    }, 2300);
+  }
 }

@@ -4,9 +4,15 @@
   flex-direction: column;
 }
 
+.content-generated {
+  position: relative;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../../assets/39047ed0ac6ef1b12cee21781285d9e5.gif');
+  background-size: cover;
+}
+
 .sidebar {
   width: 250px;
-  background-color: #f3f3f3;
+  background-color: rgb(231, 238, 227);
   color: #010626;
   display: flex;
   flex-direction: column;
@@ -26,9 +32,9 @@
 
   .button-sec {
     position: absolute;
-    bottom: 10px;
-    left: 35%;
-    margin: 0 auto;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%); 
   }
 
   a {
@@ -52,10 +58,18 @@
   }
 
   .active {
-    background-color: #2266AF;
+    background-color: #5B8C45;
     div {
       color: #fff;
     }
   }
+}
+
+
+.exit-button{
+  position: absolute; 
+  bottom: 60px; 
+  left: 50%; 
+  transform: translateX(-50%); 
 }
 

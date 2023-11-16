@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, mergeMap } from 'rxjs';
-import {
-  UserAllData
-} from 'src/app/shared/types/userAllData.type';
+import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { UserLogged } from 'src/app/shared/types/userLogged.type';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +12,7 @@ export class UserService {
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,  private router: Router) {
     this.currentUserSubject = new BehaviorSubject<UserLogged | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -61,7 +61,29 @@ export class UserService {
     );
   }
 
+  public deleteUser(userId: number): Observable<any> {
+    return this.http.delete(`http://localhost:3000/users/${userId}`).pipe(
+      mergeMap(() => {
+        this.clearCurrentUser(); 
+        this.router.navigate(['/login']);
+        return new Observable<any>((observer) => {
+          observer.next(null);
+          observer.complete();
+        });
+      })
+    );
+  }
+
+  public updateUser(userId: number, name: string, email: string): Observable<any> {
+    return this.http.put<any>(`http://localhost:3000/users/${userId}`, { name, email });
+  }
+
   public clearCurrentUser(): void {
     this.currentUserSubject.next(null);
+  }
+
+  public logoffUser():void{
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
   }
 }
