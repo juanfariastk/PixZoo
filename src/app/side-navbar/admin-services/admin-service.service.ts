@@ -5,40 +5,41 @@ import { AnimalDraw, GetAnimalDrawResponse, PostAnimalDrawRequest, PostAnimalDra
 import { UserBet } from 'src/app/shared/types/userBet.type';
 import { UserData } from 'src/app/shared/types/userData.type';
 import { UserLogged } from 'src/app/shared/types/userLogged.type';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private baseUrl = 'http://localhost:3000';
+  BASE_URL = environment.URL_API;
 
   constructor(private http: HttpClient) {}
 
   getLoginData(): Observable<UserLogged[]> {
-    return this.http.get<UserLogged[]>(`${this.baseUrl}/login`);
+    return this.http.get<UserLogged[]>(`${this.BASE_URL}/login`);
   }
 
   getAllUsersData(): Observable<UserData[]> {
-    return this.http.get<UserData[]>(`${this.baseUrl}/users`);
+    return this.http.get<UserData[]>(`${this.BASE_URL}/users`);
   }
 
   getAllUserBets(): Observable<UserBet[]> {
-    return this.http.get<UserBet[]>(`${this.baseUrl}/userBet/all`);
+    return this.http.get<UserBet[]>(`${this.BASE_URL}/userBet/all`);
   }
 
   getAnimalDraws(draws: string): Observable<AnimalDraw[]> {
-    return this.http.get<AnimalDraw[]>(`${this.baseUrl}/animals/draw/${draws}`);
+    return this.http.get<AnimalDraw[]>(`${this.BASE_URL}/animals/draw/${draws}`);
   }
 
   getActualAnimalDraw(): Observable<GetAnimalDrawResponse> {
-    return this.http.get<GetAnimalDrawResponse>(`${this.baseUrl}/animals/draw`);
+    return this.http.get<GetAnimalDrawResponse>(`${this.BASE_URL}/animals/draw`);
   }
 
   postAnimalDraw(data: PostAnimalDrawRequest): Observable<PostAnimalDrawResponse> {
-    return this.http.post<PostAnimalDrawResponse>(`${this.baseUrl}/animals/draw`, data);
+    return this.http.post<PostAnimalDrawResponse>(`${this.BASE_URL}/animals/draw`, data);
   }
   
   putAnimalFraud(data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/animals/fraud`, data);
+    return this.http.put(`${this.BASE_URL}/animals/fraud`, data);
   }
 }

@@ -4,11 +4,15 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, mergeMap } from 'rxjs';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { UserLogged } from 'src/app/shared/types/userLogged.type';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  
+  BASE_URL = environment.URL_API;
+
   private currentUserSubject: BehaviorSubject<UserLogged | null>;
   public currentUser: Observable<UserLogged | null>;
 
@@ -28,7 +32,7 @@ export class UserService {
   public getCurrentUserAllData(): Observable<UserAllData | null> {
     const user = this.currentUserSubject.value;
     if (user) {
-      return this.http.get<UserAllData>(`http://localhost:3000/users/${user.userId}`);
+      return this.http.get<UserAllData>(`${this.BASE_URL}/users/${user.userId}`);
     } else {
       return new Observable<UserAllData | null>((observer) => {
         observer.next(null);
@@ -56,13 +60,13 @@ export class UserService {
 
         if(updatedAmount == amount) updatedAmount = 0;
         console.log(updatedAmount)
-        return this.http.put<UserAllData>(`http://localhost:3000/users/${userData.id}`, { amountDeposited: updatedAmount });
+        return this.http.put<UserAllData>(`${this.BASE_URL}/users/${userData.id}`, { amountDeposited: updatedAmount });
       })
     );
   }
 
   public deleteUser(userId: number): Observable<any> {
-    return this.http.delete(`http://localhost:3000/users/${userId}`).pipe(
+    return this.http.delete(`${this.BASE_URL}/users/${userId}`).pipe(
       mergeMap(() => {
         this.clearCurrentUser(); 
         this.router.navigate(['/login']);
