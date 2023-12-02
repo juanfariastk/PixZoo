@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FirestoreModule } from './firestore/firestore.module';
 import { SideNavbarModule } from './side-navbar/side-navbar.module';
 import { UsersModule } from './users/users.module';
 
@@ -17,7 +18,8 @@ import { UsersModule } from './users/users.module';
     AppRoutingModule,
     BrowserAnimationsModule,
     UsersModule,
-    SideNavbarModule
+    SideNavbarModule,
+    FirestoreModule
   ],
   providers: [],
   bootstrap: [AppComponent]
