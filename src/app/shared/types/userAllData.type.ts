@@ -5,5 +5,6 @@ export type UserAllData = {
     password:string;
     birthday:string;
     CPF:string;
+    CNPJ?:string;
     amountDeposited?: number;
 }
