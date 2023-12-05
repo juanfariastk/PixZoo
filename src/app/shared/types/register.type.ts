@@ -1,4 +1,6 @@
 export type UserRegister ={
+    userId?:number;
+    id?:string;
     name: string;
     email: string;
     password: string;

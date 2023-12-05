@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
 import { UserBet } from 'src/app/shared/types/userBet.type';
 import { UserData } from 'src/app/shared/types/userData.type';
 import { UserLogged } from 'src/app/shared/types/userLogged.type';
-import { AdminService } from '../admin-services/admin-service.service';
 
 @Component({
   selector: 'app-main-admin-painel',
@@ -26,7 +26,7 @@ export class MainAdminPainelComponent implements OnInit {
   @ViewChild('paginatorUserBets') paginatorUserBets: MatPaginator | undefined;
 
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminFireService) {}
 
   ngOnInit() {
     this.adminService.getLoginData().subscribe((data: UserLogged[]) => {
@@ -34,7 +34,7 @@ export class MainAdminPainelComponent implements OnInit {
       
       if (this.paginator) {
         this.dataSourceSessions.paginator = this.paginator;
-        console.log(this.dataSourceSessions.data.length)
+       // console.log(this.dataSourceSessions.data.length)
       }
     });
 

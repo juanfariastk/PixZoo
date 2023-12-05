@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthFireService } from 'src/app/firestore/fire-services/auth-fire.service';
 import { CpfPipe } from 'src/app/shared/pipes/cpf.pipe';
 import { UserRegister } from 'src/app/shared/types/register.type';
-import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-user-register',
@@ -28,7 +28,7 @@ export class UserRegisterComponent {
   error409: boolean = false;
   errorMessage409: string = '';
 
-  constructor(private authService:AuthService,  private router: Router ){}
+  constructor(private authService:AuthFireService,  private router: Router ){}
 
   formatCPF(event: Event): void {
     const inputElement = event.target as HTMLInputElement;

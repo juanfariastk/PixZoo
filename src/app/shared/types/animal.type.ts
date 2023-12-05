@@ -9,7 +9,7 @@ export type AnimalDraw = {
   value: string[];
 };
 
-export type GetAnimalDrawResponse = {
+export type AnimalDrawControl = {
   actualDraw: {
     [key: string]: string[];
   }[];

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
-import { AdminService } from '../admin-services/admin-service.service';
+import { AnimalDrawControl } from 'src/app/shared/types/animal.type';
 
 @Component({
   selector: 'app-main-admin-control',
@@ -16,24 +17,34 @@ export class MainAdminControlComponent {
   showCurrentDraw: boolean = false;
   actualDrawData: any[] = [];
 
-  constructor(private adminService: AdminService, private snackBar: MatSnackBar) {}
+  constructor(private adminService: AdminFireService, private snackBar: MatSnackBar) {}
 
   sortAnimals() {
     this.animalDraws = [];
-
-    const draws = this.drawInput.split(',').map((number) => number.trim());
-
-    if (draws.length > 6) {
-      this.showSnackBar('Limite de 5 animais por sorteio atingido.');
+  
+    const draws = parseInt(this.drawInput.trim(), 10);
+  
+    if (draws > 5 || draws < 1 || isNaN(draws)) {
+      this.showSnackBar('Informe um número entre 1 e 5.');
     } else {
-      this.adminService.getAnimalDraws(draws.join(',')).subscribe((data) => {
-        if (this.animalDraws.length + data.length <= 5) {
-          this.animalDraws = this.animalDraws.concat(data);
-          this.createAnimalDataMap();
-        } else {
-          this.showSnackBar('Limite de 5 animais por sorteio atingido.');
+      this.adminService.getAnimalDraws(draws).subscribe(
+        (data) => {
+          if (this.animalDraws.length + data.length <= 5) {
+            const formattedAnimals = data.map(animal => ({
+              key: animal.name,
+              value: animal.value.map(String)
+            }));
+  
+            this.animalDraws = this.animalDraws.concat(formattedAnimals);
+            this.createAnimalDataMap();
+          } else {
+            this.showSnackBar('Limite de 5 animais por sorteio atingido.');
+          }
+        },
+        (error) => {
+          this.showSnackBar(error);
         }
-      });
+      );
     }
   }
   
@@ -53,31 +64,61 @@ export class MainAdminControlComponent {
   }
 
   setDraw() {
-    this.adminService.postAnimalDraw(this.animalDraws).subscribe(
-      () => {
-        this.showSnackBar('Sorteio definido com sucesso.');
-        this.updateActualDrawData(); 
-      },
-      (error) => {
-        if (error.status === 429) {
-          this.showSnackBar('Sorteio já foi definido, aguarde 24h para definir um novo sorteio! ');
-        } else {
-          this.showSnackBar('Erro: ' + error.message);
+    this.adminService.getActualAnimalDraw().subscribe((data) => {
+      if (data && data.length > 0 && data[0].actualDraw && data[0].actualDraw.length > 0) {
+        this.showSnackBar('Sorteio já foi definido. Aguarde 24h para definir um novo sorteio!');
+      } else {
+        if (this.animalDraws.length === 0) {
+          this.showSnackBar('Não há animais para definir.');
+          return;
         }
+      
+        const actualDraw: { [key: string]: string[] }[] = [];
+        const createdAt = new Date().toLocaleDateString('pt-BR');
+        const animalsToSend = this.animalDraws.reduce((acc, animal) => {
+          acc.push({ [animal.key]: animal.value });
+          return acc;
+        }, actualDraw);
+      
+        const animalDrawControl: AnimalDrawControl = {
+          actualDraw: animalsToSend,
+          CreatedAt: [createdAt],
+        };
+      
+        this.adminService.postAnimalDraw(animalDrawControl).subscribe(
+          () => {
+            this.showSnackBar('Sorteio definido com sucesso.');
+            this.updateActualDrawData(); 
+          },
+          (error) => {
+            if (error.status === 429) {
+              this.showSnackBar('Sorteio já foi definido, aguarde 24h para definir um novo sorteio! ');
+            } else {
+              this.showSnackBar('Erro ao definir sorteio: ' + error.message);
+            }
+          }
+        );
       }
-    );
+    });
   }
-
+  
   updateActualDrawData() {
     this.adminService.getActualAnimalDraw().subscribe((data) => {
-      if (data && data.actualDraw && data.actualDraw.length > 0) {
-        this.actualDrawData = data.actualDraw;
+      //console.log(data);
+      if (data && data.length > 0) {
+        const actualDraw = data[0].actualDraw; 
+        const formattedDraws = actualDraw.map(drawObj => ({
+          key: Object.keys(drawObj)[0],
+          value: Object.values(drawObj)[0]
+        }));
+        
+        this.actualDrawData = formattedDraws;
         this.showCurrentDraw = true;
       } else {
         this.showCurrentDraw = false;
       }
     });
-  } 
+  }
   
   showSnackBar(message: string) {
     this.snackBar.open(message, 'Fechar', {
@@ -102,14 +143,19 @@ export class MainAdminControlComponent {
   }
 
   ngOnInit() {
+    /*this.adminService.getActualAnimalDocumentId().subscribe((docId) => {
+      console.log('Document ID:', docId)});
+      */
     this.adminService.getActualAnimalDraw().subscribe((data) => {
-      if (data && data.actualDraw && data.actualDraw.length > 0) {
-        this.actualDrawData = data.actualDraw;
-        console.log(this.actualDrawData)
+      //console.log(data)
+      if (data && data.length > 0 && data[0].actualDraw && data[0].actualDraw.length > 0) {
+        this.actualDrawData = data[0].actualDraw;
+        //console.log(this.actualDrawData)
         this.showCurrentDraw = true;
       } else {
         this.showCurrentDraw = false;
       }
     });
-  }   
+  }
+   
 }

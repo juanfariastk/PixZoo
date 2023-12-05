@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { BetControlFireService } from 'src/app/firestore/fire-services/bet-control-fire.service';
+import { UserFireService } from 'src/app/firestore/fire-services/user-fire.service';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { Animal } from 'src/app/shared/types/animal.type';
 import { DataBet } from 'src/app/shared/types/dataBet.type';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
-import { UserService } from 'src/app/users/services/user.service';
-import { BetControlService } from '../bet-services/bet-control.service';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class MainContentComponent {
   selectedAnimals: Animal[] = [];
   betAmount: number=0;
 
-  constructor(private betControlService: BetControlService, private userService:UserService, private snackBar: MatSnackBar, ){}
+  constructor(private betControlService: BetControlFireService, private userService:UserFireService, private snackBar: MatSnackBar, ){}
 
   toggleSelection(animal: Animal) {
     if (this.isSelected(animal)) {
@@ -60,7 +60,7 @@ export class MainContentComponent {
       });
 
       const dataBet: DataBet = {
-        userId: currentUser.id, 
+        userId: currentUser?.userId || 0, 
         userCPF: currentUser.CPF,
         userEmail: currentUser.email,
         animalsSelected: animalsSelected,
@@ -86,7 +86,7 @@ export class MainContentComponent {
       }
 
       try {
-        const response = await this.betControlService.createBet(dataBet).toPromise();
+        const response = await this.betControlService.createBet(dataBet);
         //console.log('Aposta criada com sucesso:', response);
         const responseBets = await this.betControlService.listBets()?.toPromise();
         this.selectedAnimals = [];

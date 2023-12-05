@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { BetControlFireService } from 'src/app/firestore/fire-services/bet-control-fire.service';
+import { UserFireService } from 'src/app/firestore/fire-services/user-fire.service';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
-import { UserService } from 'src/app/users/services/user.service';
 import { AdminService } from '../admin-services/admin-service.service';
-import { BetControlService } from '../bet-services/bet-control.service';
 
 
 @Component({
@@ -22,8 +22,8 @@ export class MainContentUserComponent implements OnInit {
   fieldsChanged: boolean = false;
 
   constructor(
-    private betControlService: BetControlService,
-    private userService: UserService,
+    private betControlService: BetControlFireService,
+    private userService: UserFireService,
     private formBuilder: FormBuilder, 
     private adminservice: AdminService,
     private snackBar: MatSnackBar
@@ -70,7 +70,7 @@ export class MainContentUserComponent implements OnInit {
   }
 
   deleteAccount(){
-    const userId = this.userService.getCurrentUser()?.userId;
+    const userId = this.userService.getCurrentUser()?.id;
     this.snackBar.open('Redirecionando...','', {
       duration: 2500 
     });
@@ -89,7 +89,7 @@ export class MainContentUserComponent implements OnInit {
   }
 
   changeCurrentUserData() {
-    const userId = this.userService.getCurrentUser()?.userId;
+    const userId = this.userService.getCurrentUser()?.id;
 
     if (userId) {
       const { name, email } = this.userDataForm.value;
@@ -124,6 +124,7 @@ export class MainContentUserComponent implements OnInit {
     console.log(this.actualdraw)
 
     this.userService.getCurrentUserAllData().subscribe((user: UserAllData | null) => {
+      
       if (user) {
         const dateParts = user.birthday.split('/');
         const formattedDate = `${dateParts[0]}/${dateParts[1]}/${dateParts[2]}`;
@@ -140,6 +141,7 @@ export class MainContentUserComponent implements OnInit {
     });
 
     this.betControlService.listBets()?.subscribe((bets: any) => {
+      //console.log(bets)
       if (bets) {
         this.userBets = bets;
       }

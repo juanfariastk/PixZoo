@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { UserService } from 'src/app/users/services/user.service';
-import { AdminService } from '../admin-services/admin-service.service';
 import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 
 @Component({
@@ -13,16 +13,16 @@ import { DrawDialogComponent } from '../draw-dialog/draw-dialog.component';
 export class MainAdminContentComponent {
   actualDrawData: any;
 
-  constructor(private dialog: MatDialog, private adminService: AdminService, private userService:UserService) { }
+  constructor(private dialog: MatDialog, private adminService: AdminFireService, private userService:UserService) { }
 
   openDialog(): void {
     this.adminService.getActualAnimalDraw().subscribe((data) => {
       this.actualDrawData = data;
-      if (Array.isArray(this.actualDrawData.actualDraw)) {
-        const definedAnimals = this.actualDrawData.actualDraw
+      if (Array.isArray(data) && data.length > 0 && data[0].hasOwnProperty('actualDraw')) {
+        const definedAnimals = data[0].actualDraw
           .filter((draw: any) => !draw.hasOwnProperty('CreatedAt'))
           .map((draw: any) => Object.keys(draw)[0]);
-
+  
         const dialogRef = this.dialog.open(DrawDialogComponent, {
           width: '400px',
           data: {
@@ -34,8 +34,8 @@ export class MainAdminContentComponent {
         console.error('ActualDrawData is missing or not an array.');
       }
     });
-    
   }
+  
 
   logoff():void{
     setTimeout(() => {

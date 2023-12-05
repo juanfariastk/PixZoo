@@ -1,5 +1,6 @@
 export type UserAllData = {
-    id:number
+    userId?:number;
+    id:string;
     name:string;
     email:string;
     password:string;

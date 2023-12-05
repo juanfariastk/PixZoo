@@ -1,9 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { catchError, of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, of } from 'rxjs';
+import { AuthFireService } from 'src/app/firestore/fire-services/auth-fire.service';
 import { UserLogin } from 'src/app/shared/types/login.type';
-import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-user-login',
@@ -16,7 +16,7 @@ export class UserLoginComponent {
   email: string = ''; 
   password: string = ''; 
   
-  constructor(private authService: AuthService, private snackbar:MatSnackBar) {}
+  constructor(private authService: AuthFireService, private snackbar:MatSnackBar) {}
 
   login() {
     const user: UserLogin = { email: this.email, password: this.password };

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AnimalDraw, GetAnimalDrawResponse, PostAnimalDrawRequest, PostAnimalDrawResponse } from 'src/app/shared/types/animal.type';
+import { AnimalDraw, AnimalDrawControl, PostAnimalDrawRequest, PostAnimalDrawResponse } from 'src/app/shared/types/animal.type';
 import { UserBet } from 'src/app/shared/types/userBet.type';
 import { UserData } from 'src/app/shared/types/userData.type';
 import { UserLogged } from 'src/app/shared/types/userLogged.type';
@@ -31,8 +31,8 @@ export class AdminService {
     return this.http.get<AnimalDraw[]>(`${this.BASE_URL}/animals/draw/${draws}`);
   }
 
-  getActualAnimalDraw(): Observable<GetAnimalDrawResponse> {
-    return this.http.get<GetAnimalDrawResponse>(`${this.BASE_URL}/animals/draw`);
+  getActualAnimalDraw(): Observable<AnimalDrawControl> {
+    return this.http.get<AnimalDrawControl>(`${this.BASE_URL}/animals/draw`);
   }
 
   postAnimalDraw(data: PostAnimalDrawRequest): Observable<PostAnimalDrawResponse> {

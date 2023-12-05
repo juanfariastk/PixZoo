@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AdminService } from '../admin-services/admin-service.service';
+import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
+import { animalsArray } from 'src/app/shared/animals/animalsArray';
 
 @Component({
   selector: 'app-draw-dialog',
@@ -9,7 +10,7 @@ import { AdminService } from '../admin-services/admin-service.service';
 })
 export class DrawDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<DrawDialogComponent>,@Inject(MAT_DIALOG_DATA) public data: any, private adminService: AdminService) { }
+    public dialogRef: MatDialogRef<DrawDialogComponent>,@Inject(MAT_DIALOG_DATA) public data: any, private adminService: AdminFireService) { }
 
   definedAnimals = this.data.definedAnimals;
   allAnimals = this.data.allAnimals;
@@ -30,20 +31,14 @@ export class DrawDialogComponent {
 
   commitFraud(): void {
     if (this.selectedDefinedAnimal && this.selectedNewAnimal) {
-      const fraudData = [{
-        "oldAnimal": this.selectedDefinedAnimal,
-        "newAnimal": this.selectedNewAnimal
-      }];
-
-      console.log(fraudData);
-
-      this.adminService.putAnimalFraud(fraudData).subscribe(
-        (response) => {
-          console.log('Fraude registrada com sucesso:', response);
-          this.dialogRef.close();
+      this.adminService.getActualAnimalDraw().subscribe(
+        (animals: any[]) => {
+          const updatedAnimals = this.updateAnimalFraud(animals);
+          //console.log('Animais atualizados:', updatedAnimals);
+          this.executePutFraud(updatedAnimals);
         },
-        (error) => {
-          console.error('Erro ao registrar a fraude:', error);
+        (error: any) => {
+          console.error('Erro ao buscar animais:', error);
           this.dialogRef.close();
         }
       );
@@ -51,4 +46,58 @@ export class DrawDialogComponent {
       console.error('Ação não concluída.');
     }
   }
+  
+  updateAnimalFraud(animals: any[]): any[] {
+    const updatedAnimals = animals.map(animal => {
+      const updatedAnimal: any = {};
+  
+      for (const animalDraw of animal.actualDraw) {
+        const animalKey = Object.keys(animalDraw)[0]; 
+        if (animalKey === this.selectedDefinedAnimal) {
+          console.log(this.selectedNewAnimal)
+          const newAnimalKey = `${this.selectedNewAnimal}`;
+          const newValues = animalsArray.map((animal:any) => animal.name === this.selectedNewAnimal ?animal.value.toString().split(',') : null).filter((animal:any) => animal !== null)[0];
+          console.log(newValues)
+          updatedAnimal[newAnimalKey] = newValues;
+        } else {
+          updatedAnimal[animalKey] = animalDraw[animalKey];
+        }
+      }
+  
+      return updatedAnimal;
+    });
+  
+    console.log('Animais atualizados:', updatedAnimals);
+    return updatedAnimals;
+  }
+  
+  
+  
+  
+  executePutFraud(updatedAnimals: any[]): void {
+    this.adminService.deleteActualAnimalDraw().then(
+      () => {
+        const data = {
+          actualDraw: updatedAnimals,
+          CreatedAt: [new Date().toLocaleDateString('pt-BR')]
+        };
+    
+        this.adminService.postNewAnimalDraw(data).then(
+          (response: any) => {
+            console.log('Novo documento criado com animais atualizados:', response);
+            this.dialogRef.close();
+          },
+          (error: any) => {
+            console.error('Erro ao criar novo documento com animais atualizados:', error);
+            this.dialogRef.close();
+          }
+        );
+      },
+      (error: any) => {
+        console.error('Erro ao excluir documento existente:', error);
+        this.dialogRef.close();
+      }
+    );
+  }
+  
 }
