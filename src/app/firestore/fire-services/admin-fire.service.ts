@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Observable, catchError, from, map, throwError } from 'rxjs';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { Animal, AnimalDrawControl } from 'src/app/shared/types/animal.type';
 import { UserBet } from 'src/app/shared/types/userBet.type';
@@ -68,12 +68,13 @@ export class AdminFireService {
   getActualAnimalDocumentId(): Observable<string> {
     return this.firestore.collection<AnimalDrawControl>('animals').snapshotChanges().pipe(
       map((actions) => {
+        console.log(actions[0].payload.doc.id)
         return actions[0].payload.doc.id;
       })
     );
   }
   
-  postAnimalDraw(data: AnimalDrawControl): Observable<AnimalDrawControl> {
+  postAnimalDraw(data: any): Observable<AnimalDrawControl> {
     const createdAt = new Date().toLocaleDateString('pt-BR');
     const animalDrawResponse: AnimalDrawControl = {
       actualDraw: data.actualDraw, 
@@ -101,27 +102,47 @@ export class AdminFireService {
     });
   }
   
-  async putAnimalFraud(data: any[]): Promise<void> {
-    const docId = await this.getActualAnimalDocumentId().toPromise();
-    const docRef = this.firestore.collection('animals').doc(docId);
-    console.log(docRef)
-    return docRef.update({ actualDraw: data });
-  }  
+  
+  putAnimalFraud(data: any[]): Observable<any> {
+    return new Observable<any>((observer) => {
+      this.getActualAnimalDocumentId().subscribe((docID) => {
+        if (!docID) {
+          observer.error('ID do documento não encontrado.');
+          observer.complete();
+          return;
+        }
+  
+        const docRef = this.firestore.collection('animals').doc(docID);
+        const newData: any = {};
+  
 
-  async docIdTest(){
-    const docId = await this.getActualAnimalDocumentId().toPromise();
-    const docRef = this.firestore.collection('animals').doc(docId);
-    console.log(docRef)
+        console.log(data)
+  
+        docRef.update({ actualDraw: [newData] })
+          .then(() => {
+            observer.next('Dados atualizados com sucesso.');
+            observer.complete();
+          })
+          .catch((error) => {
+            observer.error(`Erro ao atualizar dados: ${error}`);
+            observer.complete();
+          });
+      });
+    });
+  }
+  
+
+  deleteAnimalDocument(docId: string): Observable<void> {
+    return from(this.firestore.collection('animals').doc(docId).delete()).pipe(
+      map(() => {
+        console.log('Documento excluído com sucesso!');
+      }),
+      catchError(error => {
+        console.error('Erro ao excluir documento:', error);
+        return throwError(error);
+      })
+    );
   }
 
-  async deleteActualAnimalDraw(): Promise<void> {
-    const docId = await this.getActualAnimalDocumentId().toPromise();
-    const docRef = this.firestore.collection('animals').doc(docId);
-    return docRef.delete();
-  }
-
-  async postNewAnimalDraw(data: AnimalDrawControl): Promise<any> {
-    return this.firestore.collection('animals').add(data);
-  }
   
 }

@@ -54,10 +54,10 @@ export class DrawDialogComponent {
       for (const animalDraw of animal.actualDraw) {
         const animalKey = Object.keys(animalDraw)[0]; 
         if (animalKey === this.selectedDefinedAnimal) {
-          console.log(this.selectedNewAnimal)
+          //console.log(this.selectedNewAnimal)
           const newAnimalKey = `${this.selectedNewAnimal}`;
           const newValues = animalsArray.map((animal:any) => animal.name === this.selectedNewAnimal ?animal.value.toString().split(',') : null).filter((animal:any) => animal !== null)[0];
-          console.log(newValues)
+          //console.log(newValues)
           updatedAnimal[newAnimalKey] = newValues;
         } else {
           updatedAnimal[animalKey] = animalDraw[animalKey];
@@ -67,37 +67,19 @@ export class DrawDialogComponent {
       return updatedAnimal;
     });
   
-    console.log('Animais atualizados:', updatedAnimals);
+    //('Animais atualizados:', updatedAnimals);
     return updatedAnimals;
   }
   
   
-  
-  
   executePutFraud(updatedAnimals: any[]): void {
-    this.adminService.deleteActualAnimalDraw().then(
+    this.adminService.putAnimalFraud(updatedAnimals).subscribe(
       () => {
-        const data = {
-          actualDraw: updatedAnimals,
-          CreatedAt: [new Date().toLocaleDateString('pt-BR')]
-        };
-    
-        this.adminService.postNewAnimalDraw(data).then(
-          (response: any) => {
-            console.log('Novo documento criado com animais atualizados:', response);
-            this.dialogRef.close();
-          },
-          (error: any) => {
-            console.error('Erro ao criar novo documento com animais atualizados:', error);
-            this.dialogRef.close();
-          }
-        );
+        console.log('Animais substituídos com sucesso no Firestore.');
       },
       (error: any) => {
-        console.error('Erro ao excluir documento existente:', error);
-        this.dialogRef.close();
-      }
-    );
+        console.error('Erro ao substituir animais no Firestore:', error);
+      })
   }
   
 }
