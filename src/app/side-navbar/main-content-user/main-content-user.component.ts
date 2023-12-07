@@ -6,6 +6,7 @@ import { UserFireService } from 'src/app/firestore/fire-services/user-fire.servi
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { UserAllData } from 'src/app/shared/types/userAllData.type';
 import { AdminService } from '../admin-services/admin-service.service';
+import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class MainContentUserComponent implements OnInit {
     private betControlService: BetControlFireService,
     private userService: UserFireService,
     private formBuilder: FormBuilder, 
-    private adminservice: AdminService,
+    private adminservice: AdminFireService,
     private snackBar: MatSnackBar
   ) {
     this.userDataForm = this.formBuilder.group({
@@ -42,15 +43,14 @@ export class MainContentUserComponent implements OnInit {
     const animal = this.animalsArray.find(animal => animal.name === key);
     return animal ? animal.url : '';
   }
-  getactualdraw(){
-    this.adminservice.getActualAnimalDraw().subscribe((data)=>{
-      if(data.actualDraw&&data.actualDraw.length>0
-      ){
-        this.verifydraw= true
-        this.actualdraw=data.actualDraw
-        console.log(this.actualdraw)
+  getactualdraw() {
+    this.adminservice.getActualAnimalDraw().subscribe((data) => {
+      if (data && data.length > 0 && data[0].actualDraw) {
+        this.verifydraw = true;
+        this.actualdraw = data[0].actualDraw;
+        console.log(this.actualdraw);
       }
-    })
+    });
   }
 
   SearchUrl(draw:any):string{

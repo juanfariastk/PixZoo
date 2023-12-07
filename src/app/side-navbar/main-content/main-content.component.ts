@@ -68,7 +68,7 @@ export class MainContentComponent {
       };
 
       try {
-        await this.userService.updateAmountDeposited(dataBet.amountBet).toPromise();
+        //await this.userService.updateAmountDeposited(dataBet.amountBet).toPromise();
         this.snackBar.open('Aposta Realizada! Você pode checar na aba de Conta', 'Fechar', {
           duration: 3500,
           horizontalPosition: 'left',

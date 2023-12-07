@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable, catchError, from, map, throwError } from 'rxjs';
+import { Observable, catchError, from, map, switchMap, tap, throwError } from 'rxjs';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 import { Animal, AnimalDrawControl } from 'src/app/shared/types/animal.type';
 import { UserBet } from 'src/app/shared/types/userBet.type';
@@ -13,9 +13,8 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class AdminFireService {
-  BASE_URL = environment.URL_API;
 
-  constructor(private http: HttpClient, private firestore:AngularFirestore) {}
+  constructor(private firestore:AngularFirestore) {}
 
   getLoginData(): Observable<UserLogged[]> {
     return this.firestore.collection<UserLogged>('login').valueChanges();
@@ -65,16 +64,35 @@ export class AdminFireService {
     return this.firestore.collection<AnimalDrawControl>('animals').valueChanges() as unknown as Observable<AnimalDrawControl[]>;
   }
 
-  getActualAnimalDocumentId(): Observable<string> {
+  getCurrentDraw(docId: string): Observable<AnimalDrawControl> {
+    return this.firestore.collection<AnimalDrawControl>('animals').doc(docId).get().pipe(
+      map((document) => {
+        const actualDoc = { id: docId, ...document.data() } as AnimalDrawControl;
+        return actualDoc;
+      })
+    );
+  }
+
+  getActualAnimalDocumentId(): Observable<string | undefined> {
     return this.firestore.collection<AnimalDrawControl>('animals').snapshotChanges().pipe(
       map((actions) => {
-        console.log(actions[0].payload.doc.id)
-        return actions[0].payload.doc.id;
+        if (actions.length > 0 && actions[0].payload && actions[0].payload.doc) {
+          return actions[0].payload.doc.id;
+        } else {
+          console.error('Documento não encontrado.');
+          return undefined;
+        }
+      }),
+      catchError((error) => {
+        console.error('Erro ao obter ID do documento:', error);
+        return throwError(error);
       })
     );
   }
   
+  
   postAnimalDraw(data: any): Observable<AnimalDrawControl> {
+    //console.log(data)
     const createdAt = new Date().toLocaleDateString('pt-BR');
     const animalDrawResponse: AnimalDrawControl = {
       actualDraw: data.actualDraw, 
@@ -102,36 +120,42 @@ export class AdminFireService {
     });
   }
   
-  
   putAnimalFraud(data: any[]): Observable<any> {
-    return new Observable<any>((observer) => {
-      this.getActualAnimalDocumentId().subscribe((docID) => {
+    return this.getActualAnimalDocumentId().pipe(
+      switchMap((docID):any => {
         if (!docID) {
-          observer.error('ID do documento não encontrado.');
-          observer.complete();
-          return;
+          return throwError('ID do documento não encontrado.');
         }
   
-        const docRef = this.firestore.collection('animals').doc(docID);
-        const newData: any = {};
-  
-
-        console.log(data)
-  
-        docRef.update({ actualDraw: [newData] })
-          .then(() => {
-            observer.next('Dados atualizados com sucesso.');
-            observer.complete();
+        /*return this.getCurrentDraw(docID).pipe(
+          switchMap(() => {
+            return this.deleteAnimalDocument(docID).pipe(
+              switchMap(() => {
+                return this.postAnimalDraw({ atualDraw: data });
+              })
+            );
           })
-          .catch((error) => {
-            observer.error(`Erro ao atualizar dados: ${error}`);
-            observer.complete();
-          });
-      });
-    });
+        )*/;
+      })
+      
+    );
+  }  
+  
+  
+   deleteAndPostAnimalDraw(docID: string, data: any[]): Observable<any> {
+    return this.deleteAnimalDocument(docID).pipe(
+      switchMap(() => {
+        return this.postAnimalDraw(data);
+      }),
+      catchError((error) => {
+        console.error('Erro ao excluir documento:', error);
+        return throwError(error);
+      })
+    );
   }
   
-
+  
+  
   deleteAnimalDocument(docId: string): Observable<void> {
     return from(this.firestore.collection('animals').doc(docId).delete()).pipe(
       map(() => {

@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { concatMap, switchMap, throwError } from 'rxjs';
 import { AdminFireService } from 'src/app/firestore/fire-services/admin-fire.service';
 import { animalsArray } from 'src/app/shared/animals/animalsArray';
 
@@ -16,6 +17,7 @@ export class DrawDialogComponent {
   allAnimals = this.data.allAnimals;
   selectedDefinedAnimal: string | null = null;
   selectedNewAnimal: string | null = null;
+  processing = false;
 
   onDefinedAnimalSelectionChange(event: any): void {
     this.selectedDefinedAnimal = event.value;
@@ -30,7 +32,9 @@ export class DrawDialogComponent {
   }
 
   commitFraud(): void {
-    if (this.selectedDefinedAnimal && this.selectedNewAnimal) {
+    if (!this.processing && this.selectedDefinedAnimal && this.selectedNewAnimal) {
+      this.processing = true; 
+
       this.adminService.getActualAnimalDraw().subscribe(
         (animals: any[]) => {
           const updatedAnimals = this.updateAnimalFraud(animals);
@@ -40,6 +44,7 @@ export class DrawDialogComponent {
         (error: any) => {
           console.error('Erro ao buscar animais:', error);
           this.dialogRef.close();
+          this.processing = false; 
         }
       );
     } else {
@@ -75,11 +80,36 @@ export class DrawDialogComponent {
   executePutFraud(updatedAnimals: any[]): void {
     this.adminService.putAnimalFraud(updatedAnimals).subscribe(
       () => {
-        console.log('Animais substituídos com sucesso no Firestore.');
+        console.log('Operações concluídas.');
+        this.dialogRef.close();
+        this.processing = false;
       },
-      (error: any) => {
-        console.error('Erro ao substituir animais no Firestore:', error);
-      })
+      (error) => {
+        console.error('Erro ao realizar operações:', error);
+        this.dialogRef.close();
+        this.processing = false;
+      }
+    );
+  }  
+  
+  
+  revertDeleteAndClose(docID: string, updatedAnimals: any[]): void {
+    if (docID) {
+      this.adminService.postAnimalDraw(updatedAnimals).subscribe(
+        () => {
+          console.log('Exclusão revertida.');
+          this.dialogRef.close();
+          this.processing = false;
+        },
+        (error) => {
+          console.error('Erro ao reverter a exclusão:', error);
+          this.dialogRef.close();
+          this.processing = false;
+        }
+      );
+    }
   }
+  
+  
   
 }
